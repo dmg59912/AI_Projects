@@ -1,5 +1,14 @@
+import collections
+from os import path
+import queue
 
 
+#global flags to set our start and goal position on our game board 
+goal = -2
+start = -1
+
+###################################################################################################
+################# Graph and vertex classes
 class Graph(object):
     def __init__(self):
         #defining empty dictionary
@@ -12,11 +21,11 @@ class Graph(object):
         self.num_vertices = self.num_vertices + 1
 
     #returns node value if it is in graph
-    def get_vertex(self,node):
-        if node not in self.vert_dict:
-            print(node, "not in graph")
+    def get_vertex(self,n):
+        if n not in self.vert_dict:
+            print(n, "not in graph")
         else:
-            return node
+            return self.vert_dict[n]
 
     def add_edge(self, from_edge, to_edge, weight):
         if from_edge not in self.vert_dict:
@@ -30,6 +39,9 @@ class Graph(object):
 
     def get_vertices(self):
         return self.vert_dict.keys()
+
+    def num_vert(self):
+        return self.num_vertices
 
     #plotting our graph 
     def graph_summary(self):
@@ -58,37 +70,76 @@ class Vertex:
     def get_id(self):
         return self.id
 
+
     #gets weight of selected neighbour
     def get_weight(self, neighbour):
         return self.adjacent[neighbour]
 
-#######################################################################################
-#############################################
 
+
+
+#######################################################################################
+############################## BFS algo ##########################################
+class BFS(object):
+    def __init__(self, graph):
+        self.graph = graph
+        self.path = []
+        self.possible_paths = []
+
+
+    def bfs_util(self, start, goal, visited, add_path):
+
+        #initial state, our visited initial state wil be marked as true
+        visited[start] = True
+        self.path.append(start)
+
+        # if current path is the same same our goal
+        if start == goal:
+            add_path.append(self.path.copy())
+        else:
+            vertexes = self.graph.get_vertex(start)
+            for x in vertexes.adjacent:
+                if visited[x.id] == False:
+                    self.bfs_util(x.id,goal,visited,add_path)
+        
+        # remove current vertex from path and marked it as unvisited 
+        self.path.pop()
+        visited[start] = False
+        return add_path
+   
+    def BFS_paths(self,start,goal):
+        self.add_path = []
+        visited = [False] * (self.graph.num_vert() + 1)
+        self.add_path = self.bfs_util(start,goal,visited,self.add_path)
+        return  self.add_path
+
+########################################################################################
+
+def DFS_util(self, root):
+    for node_item in root.children_list:
+        if node_item.visited == False:
+            self.DFS_util(node_item)
+            node_item.visited = True
+
+    print(root.get_id())
+    return
+
+def DFS_traversal(self):
+        self.DFS_util(self.root)
+
+##############################################################################################
+########################## main #######################################
 def main():
     print("Setting up basic maze")
 
     #setting up graph and files 
     
-    file_to_open = "smallMaze.lay"
+    #file_to_open = "bigMaze.lay"
+    file_to_open = "mediumMaze.lay"
+    #file_to_open = "smallMaze.lay"
+    
     graph = Graph()
 
-    #reading in a loop
-    f = open(file_to_open,"r")
-
-    for x in f:
-        print(x,end='')
-    f.close()
-
-    print('\n\n')
-    #get the lenght of the data 
-    f = open(file_to_open,"r")
-    data = f.read()
-    len_char = len(data)
-    print(len_char)
-    f.close()
-
-    print('\n\n')
 
     #adding to a file to matrix chars
     game_board = []
@@ -103,18 +154,12 @@ def main():
         line = f.readline() 
         game_board.append(col)
 
-    print("\n\n")
-    print(len(game_board))
-    print(len(game_board[0]))
-    print(game_board)
 
     new_b = game_board
+    # count will increment to set vertex values if there is an open space 
     count = 0
 
-    #set up a flag for start and goal to add to our graph
-    goal = -2
-    start = -1
-
+ 
     # Addinng nodes to our graph
     for i in range(len(game_board)):
         for j in range(len(game_board[0])):
@@ -133,17 +178,12 @@ def main():
                 graph.add_vertex(start)
                 
 
-
-            print(game_board[i][j], ' ', end ="")
-        print()
-
-    print(graph.get_vertices())
+    #print(graph.get_vertices())
      # printing board 
-     # 8, 1
-   
-    print('\n\n',count)
+  
+    print('\n\n','Total vertecies',count)
  
-    # setting up travel directions the matrix board 
+    # setting up travel directions to travel on our matrix board 
     move_up = -1
     move_right = 1
     move_down = 1
@@ -184,7 +224,51 @@ def main():
             #print(i,j)
             #check top and top left  boundaries are in range
 
-    graph.graph_summary()
+   
+
+
+    bfs = BFS(graph)
+    shortes = bfs.BFS_paths(start,goal)
+
+    # need to find the shortes path from the list of paths found 
+
+    path_count = 0
+    #give flag value for our current path to conpare and set the path with the lowest travel distance per say
+    current_path = 10000000
+    shortes_path_index = 0
+    for i in range(len(shortes)):
+        for j in range(len(shortes[i])):
+            path_count += 1
+        if current_path > path_count:
+            current_path = path_count - 1
+            shortes_path_index = i
+        path_count = 0
+
+
+
+       
+           
+        
+    # map our shortes path with '.' 
+    for i in range(len(game_board)):
+        for j in range(len(game_board[0])):
+            for k in shortes[shortes_path_index]:
+                if game_board[i][j] == k:
+                    game_board[i][j] = '.'
+                elif game_board[i][j] == goal:
+                    game_board[i][j] = 'P'
+
+    # remove vertex ids on our map and set it to only show current shortes path 
+    for i in range(len(game_board)):
+        for j in range(len(game_board[0])):
+            if (game_board [i][j] != '%') and ((game_board[i][j] != '.') and (game_board[i][j] != 'P') ):
+                game_board[i][j] = ' '
+            print(game_board[i][j], end ="")
+        print()
+    
+    print('Shortes path cost',current_path)
+
+       
            
         
             
