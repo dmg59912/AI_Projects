@@ -1,7 +1,7 @@
 
 from Graph.Graph import Graph
 from pathlib import Path
-from SearchAlgorithms.DFSRec import DFSRec
+from SearchAlgorithms.DFSNodeColor import DFSNodeColor
 
 # Converting maze to graph
 
@@ -11,11 +11,13 @@ data_folder = Path("Data/TextData/")
 
 data = data_folder / "map.txt"
 
-g = Graph(data)
+
+
+g = Graph( data)
 g.graph_build()
 size = g.graph_length()
 
-g.graph_summary()
+#g.graph_summary()
 
-dfs = DFSRec(g, size, 2)
+dfs = DFSNodeColor(g, size)
 dfs.DFS_recursive()

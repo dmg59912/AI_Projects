@@ -26,11 +26,15 @@ class Graph(object):
 
 		self.vert_dict = {}
 		self.num_vertices = 0
+		self.color = [0,1,2]
+		self.color_names_list = {0:"Red", 1:"Blue", 2:"Green"}
 
 
 	def __iter__(self):
 		return iter(self.vert_dict.values())
 
+	def get_color_list(self):
+		return self.color_names_list
 
 	def graph_length(self):
 		return 	self.columns_count
@@ -49,7 +53,7 @@ class Graph(object):
 	def add_vertex(self, node):
 
 		self.num_vertices = self.num_vertices + 1
-		new_vertex = Vertex(node)
+		new_vertex = Vertex(node, self.color)
 		self.vert_dict[node] = new_vertex
 		return new_vertex
 
@@ -78,6 +82,17 @@ class Graph(object):
 	def get_vertices(self):
 		return self.vert_dict.keys()
 
+	# find the count for the connections and use that 
+	def most_visited_node(self):
+		node = None
+		count_neighbor = 0
+		for i in self.vert_dict.values():
+			if count_neighbor < len(i.get_connections()):
+				count_neighbor = len(i.get_connections())
+				node = i
+				
+		return node
+
 
 	def graph_summary(self):
 		
@@ -98,10 +113,14 @@ class Graph(object):
 class Vertex:
 	""" keeps a node information """
 
-	def __init__(self, node):
+	def __init__(self, node,color_list):
 		self.id = node
+		self.color = None
 		self.adjacent = {}
 		self.visited = False
+		# need to copy or else it prints only red follow by green, need to make a copy instead of reference 
+		self.list_color = color_list.copy()
+		self.neighbor_count = 0
 
 
 	def __str__(self):
@@ -110,6 +129,7 @@ class Vertex:
 
 	def add_neighbor(self, neighbor, weight=0):
 		self.adjacent[neighbor] = weight
+		self.neighbor_count += 1
 
 	
 	def get_connections(self):
@@ -126,3 +146,13 @@ class Vertex:
 
 	def get_weight(self, neighbor):
 		return self.adjacent[neighbor]
+
+
+	def get_colors(self):
+		return self.list_color 
+
+	def set_color(self, id):
+		self.color = id
+
+	def get_color(self):
+		return self.color
