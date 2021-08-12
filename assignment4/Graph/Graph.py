@@ -26,8 +26,20 @@ class Graph(object):
 
 		self.vert_dict = {}
 		self.num_vertices = 0
-		self.color = [0,1,2]
-		self.color_names_list = {0:"Red", 1:"Blue", 2:"Green"}
+		################## using two colors instead #######################
+		#self.color = [0,1]
+		#self.color_names_list = {0:"Red", 1:"Blue"}
+
+		##################################################################
+
+
+		################## using 4 colors instead #######################
+		self.color = [0,1,2,3]
+		self.color_names_list = {0:"Red", 1:"Blue",2:"Green",3:"Fuchsia"}
+
+		##################################################################
+		#self.color = [0,1,2]
+		#self.color_names_list = {0:"Red", 1:"Blue", 2:"Green"}
 
 
 	def __iter__(self):
@@ -87,10 +99,9 @@ class Graph(object):
 		node = None
 		count_neighbor = 0
 		for i in self.vert_dict.values():
-			if count_neighbor < len(i.get_connections()):
+			if count_neighbor < len(i.get_connections()) :
 				count_neighbor = len(i.get_connections())
-				node = i
-				
+				node = i 	
 		return node
 
 

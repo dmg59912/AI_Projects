@@ -30,8 +30,8 @@ class DFSNodeColor(object):
             for vertex in s.adjacent:
                 node = self.graph.get_vertex(vertex.get_id())
 
-                # will remove item until there is 1 left
-                if len(node.get_colors())> 1:
+                # will remove if visited is false 
+                if  vertex.get_visited() == False:
                     node.get_colors().remove(s.get_colors()[0])
         else:
             print("Arc consistency fail at", s.get_id())
